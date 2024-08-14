@@ -36,11 +36,11 @@ namespace application.Controllers
 
                 var result = await _myActivitiesService.RetrieveMyActivitiesDetailAsync(requestDto);
 
-
+                return Ok(result);
             }
             catch (Exception ex)
             {
-
+                return Ok(ex);
             }
         }
     }

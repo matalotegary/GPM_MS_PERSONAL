@@ -1,4 +1,5 @@
-﻿using domain.DomainModels.PersonalInfo;
+﻿using domain.DomainModels.DefaultUser;
+using domain.DomainModels.PersonalInfo;
 using infrastructure.EntityConfigurations.PersonalInfo;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,5 +24,6 @@ namespace infrastructure
         //ef core will ensure non-null value here, thus can use null-forgiving operator here
 
         public DbSet<PersonalInfoEntity> PersonalInfo { get; protected set; } = null!;
+        public DbSet<CodeDefaultUserEntity> CodeDefaultUser { get; protected set; } = null!;
     }
 }

@@ -13,15 +13,14 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         var configuration = builder.Configuration;
-        // Add services to the container.
 
+        // Add services to the container.
         builder.Services.AddControllers();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-
         #region AppSettings
+        // Commented out for now
         //builder.Services.Configure<StorageAccountConfiguration>(configuration.GetSection(nameof(StorageAccountConfiguration)));
         //builder.Services.Configure<KeyVaultConfiguration>(configuration.GetSection(nameof(KeyVaultConfiguration)));
         //var keyVaultUri = new Uri(builder.Configuration["KeyVaultConfiguration:VaultName"]!);
@@ -41,28 +40,23 @@ internal class Program
         }
 
         builder.Services.AddDbContext<PersonalInfoDbContext>(options =>
-            options.UseSqlServer(configuration["Database:ConnectionString"],
-        sqlOptions => sqlOptions.MigrationsAssembly(nameof(application)))); // Ensure "DataAccess" is the correct project name containing the migrations
-
-        /*builder.Services.AddDbContext<PersonalInfoDbContext>(options =>
-                options.UseSqlServer(builder.Configuration["Database:ConnectionString"].ToString(),
-                options => options.EnableRetryOnFailure(
-                    maxRetryCount: 3,
-                    maxRetryDelay: System.TimeSpan.FromSeconds(30),
-                    errorNumbersToAdd: null
-                    ))
-            );*/
+            options.UseSqlServer(connectionString,
+                sqlOptions => sqlOptions.MigrationsAssembly(nameof(application)))); // Ensure "application" is the correct project name containing the migrations
         #endregion
 
         #region Repositories
         builder.Services.AddScoped<IPersonalInfoRepository, PersonalInfoRepository>();
+        builder.Services.AddTransient<CodeDefaultUserDataSeed>();
+
         #endregion
 
         #region Services
         builder.Services.AddScoped<IMyActivitiesService, MyActivitiesService>();
         builder.Services.AddScoped<IPersonalInfoService, PersonalInfoService>();
         #endregion
+
         #region Background Services
+        // Commented out for now
         //builder.Services.AddHostedService<TimedHostedBackgroundService>();
         //builder.Services.AddHostedService<ConsumerBackgroundService>();
         //builder.Services.AddHostedService<QueuePollingBackgroundService>();
@@ -70,8 +64,8 @@ internal class Program
 
         var app = builder.Build();
 
-        #region Start Migration
-        ApplyMigration(app);
+        #region Start Migration and Seed Data
+        ApplyMigrationAndSeed(app);
         #endregion
 
         // Configure the HTTP request pipeline.
@@ -90,7 +84,7 @@ internal class Program
         app.Run();
     }
 
-    private static void ApplyMigration(WebApplication webApplication)
+    private static void ApplyMigrationAndSeed(WebApplication webApplication)
     {
         using (var scope = webApplication.Services.CreateScope())
         {
@@ -98,13 +92,31 @@ internal class Program
             try
             {
                 var context = services.GetRequiredService<PersonalInfoDbContext>();
+
+                // Apply migrations
                 context.Database.Migrate();
+
+                // Resolve the seeding service
+                var seed = services.GetRequiredService<CodeDefaultUserDataSeed>();
+
+                // Seed data
+                seed.InsertData(context);
+
+                // Resolve and run the seeding services
+                // Add here for more Data seeding
+                var codeDefaultUserSeed = services.GetRequiredService<CodeDefaultUserDataSeed>();
+                codeDefaultUserSeed.InsertData(context);
+
+                //Sample
+                //var anotherDataSeed = services.GetRequiredService<AnotherDataSeed>();
+                //anotherDataSeed.InsertData(context);
             }
             catch (Exception ex)
             {
                 // Log the exception or handle it as needed
-                Console.WriteLine(ex.Message);
+                Console.WriteLine($"An error occurred during migration and seeding: {ex.Message}");
             }
         }
     }
+
 }

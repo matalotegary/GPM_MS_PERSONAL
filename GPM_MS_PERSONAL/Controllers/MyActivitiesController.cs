@@ -1,11 +1,10 @@
 ﻿using application.Interface.MyActivities;
 using application.Model.Dto.MyActivities;
-using application.Validators;
+using application.Validators.MyActivities;
+using common.library.BaseClass;
+using common.library.SeedWork.Response;
 using domain.Validators;
 using Microsoft.AspNetCore.Mvc;
-using common.library.SeedWork.Response;
-using common.library.Constant;
-using common.library.BaseClass;
 
 namespace application.Controllers
 {
@@ -41,7 +40,7 @@ namespace application.Controllers
 
                 ResponseDto response = PrepareResponse(true,
                     applicationName,
-                    "00",
+                    ReturnCode.Success,
                     errorList,
                     result);
                 return Ok(response);

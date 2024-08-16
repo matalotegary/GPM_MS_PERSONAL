@@ -13,7 +13,7 @@ namespace application.Services.PersonalInfo
 {
     public class PersonalInfoService : IPersonalInfoService
     {
-       private readonly IPersonalInfoRepository _personalInfoRepository;
+        private readonly IPersonalInfoRepository _personalInfoRepository;
 
         public PersonalInfoService(
             IPersonalInfoRepository personalInfoRepository)
@@ -58,10 +58,36 @@ namespace application.Services.PersonalInfo
                     responseDto.Status = SharedConstants.ResponseStatuses.Success;
                     responseDto.CreatedOn = personalInfoTable.CreatedOn.ToString();
                     responseDto.TransactionNumber = personalInfoTable.TransactionNumberRequestID.ToString();
-                }               
+                }
             });
-                
-            return(responseDto, errorList);
+
+            return (responseDto, errorList);
+        }
+
+        public async Task<(RetrievePersonalInfoResponseDto?, List<ExceptionsDto?>)> RetrievePersonalInfoASync(RetrievePersonalInfoRequestDto requestDto)
+        {
+
+            RetrievePersonalInfoResponseDto? responseDto = new();
+            List<ExceptionsDto?> errorList = new();
+
+            var transNo = Guid.Parse(requestDto.TransactionNumberRequestID);
+
+            var tableData = await _personalInfoRepository.FindByTransactionNumberRequestIDAsync(transNo);
+
+            if (tableData! != null!)
+            {
+                responseDto.FirstName = tableData.FirstName!;
+                responseDto.MiddleName = tableData.MiddleName!;
+                responseDto.LastName = tableData.LastName!;
+                responseDto.Age = (int)tableData.Age!;
+                responseDto.Status = tableData.Status!;
+            }
+            else
+            {
+                errorList.Add(new ExceptionsDto("01", "No Record in Database", nameof(RetrievePersonalInfoASync)));
+
+            }
+            return (responseDto, errorList);
         }
     }
 }

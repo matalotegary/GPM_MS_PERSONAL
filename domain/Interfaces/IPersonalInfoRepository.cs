@@ -10,7 +10,7 @@ namespace domain.Interfaces
 {
     public interface IPersonalInfoRepository
     {
-        Task<PersonalInfoEntity> FindByTransactionNumberRequestIDAsync(Guid transactionNumberRequestID);
+        Task<PersonalInfoEntity?> FindByTransactionNumberRequestIDAsync(Guid transactionNumberRequestID);
         Task AddPersonalInfoAsync(PersonalInfoEntity entity);
         void UpdatePersonalInfoAsync(PersonalInfoEntity entity);
         IExecutionStrategy GetExecutionStrategy();

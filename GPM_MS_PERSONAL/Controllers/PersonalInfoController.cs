@@ -48,14 +48,55 @@ namespace application.Controllers
                 return Ok(response);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return PopulateException(ex, fullActionMethodName);
             }
 
         }
 
-        
+        [HttpPost("RetrievePersonalInfo")]
+        [ProducesResponseType(typeof(RetrievePersonalInfoResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RetrievePersonalInfoAsync(RetrievePersonalInfoRequestDto requestDto)
+        {
+            actionMethodName = nameof(RetrievePersonalInfoAsync);
+            var fullActionMethodName = SharedHelper.GetFullActionMethodName(controllerName, actionMethodName);
+
+            try
+            {
+                //ValidatorExtension.Validate<AddPersonalInfoRequestDto, PersonalInfoDataValidator>(requestDto)
+
+                var responseDto = await _personalInfoService.RetrievePersonalInfoASync(requestDto);
+
+                ResponseDto response = null!;
+
+                if (responseDto.Item2.Any())
+                {
+                    response = PrepareResponse(false,
+                        fullActionMethodName,
+                        ReturnCode.BusinessError,
+                        responseDto.Item2!,
+                        new List<RetrievePersonalInfoResponseDto>());
+                }
+                else
+                {
+                    response = PrepareResponse(true,
+                        fullActionMethodName,
+                        ReturnCode.Success,
+                        new List<ExceptionsDto>(),
+                        responseDto.Item1!);
+                }
+
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                return PopulateException(ex, fullActionMethodName);
+            }
+        }
 
 
     }

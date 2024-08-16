@@ -2,7 +2,6 @@
 using domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using System.Data.Entity;
 
 namespace infrastructure.Repositories.PersonalInfo
 {
@@ -14,7 +13,7 @@ namespace infrastructure.Repositories.PersonalInfo
         {
             _dbContext = personalInfoDbContext ?? throw new ArgumentNullException(nameof(personalInfoDbContext));
         }
-        public async Task<PersonalInfoEntity> FindByTransactionNumberRequestIDAsync(Guid transactionNumberRequestID)
+        public async Task<PersonalInfoEntity?> FindByTransactionNumberRequestIDAsync(Guid transactionNumberRequestID)
         {
             return await _dbContext.PersonalInfo.FirstOrDefaultAsync(f => f.TransactionNumberRequestID.Equals(transactionNumberRequestID));
         }

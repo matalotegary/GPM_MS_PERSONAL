@@ -66,7 +66,7 @@ namespace application.Controllers
 
             try
             {
-                //ValidatorExtension.Validate<AddPersonalInfoRequestDto, PersonalInfoDataValidator>(requestDto)
+                ValidatorExtension.Validate<RetrievePersonalInfoRequestDto, RetrievePersonalInfoValidator>(requestDto);
 
                 var responseDto = await _personalInfoService.RetrievePersonalInfoASync(requestDto);
 
